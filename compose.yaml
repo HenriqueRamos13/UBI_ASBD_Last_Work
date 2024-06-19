@@ -1,1 +1,63 @@
-a
+services:
+  sqlserver:
+    build: ./Db
+    platform: linux/amd64
+    restart: unless-stopped
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "password123!"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - ./Db:/usr/src/app
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "1GB"
+
+  # back:
+  #   build: ./back
+  #   restart: always
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     DB_HOST: sqlserver
+  #     DB_USER: sa
+  #     DB_PASS: password123!
+  #     DB_NAME: database
+  #     JWT_TOKEN: "secret"
+  #     MICROSSERVICE_ID: 1
+  #     PORT: 3001
+  #   depends_on:
+  #     - sqlserver
+  #   volumes:
+  #     - ./back:/app
+  #     - /app/node_modules
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: "0.5"
+  #         memory: "0.8GB"
+
+  # front:
+  #   container_name: nextjs-app
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - sqlserver
+  #     - back
+  #   environment:
+  #     - NEXT_PUBLIC_TEST_ENV=development
+  #     - NODE_ENV=development
+  #   build: ./front
+  #   volumes:
+  #     - ./front:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #   ports:
+  #     - 3000:3000
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: "0.9"
+  #         memory: "1GB"

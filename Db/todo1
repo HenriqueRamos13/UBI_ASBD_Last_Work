@@ -1,0 +1,90 @@
+docker exec -it 0c951a72758f /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P password123!
+
+SELECT name FROM sys.databases;
+GO
+
+USE [database];
+GO
+
+SELECT name FROM sys.tables;
+GO
+
+SELECT name FROM sys.procedures;
+GO
+
+SELECT @@SPID AS 'Session ID';
+GO
+
+INSERT INTO [user] (name, email, password, accountNumber) VALUES ('John Doe', 'john.doe@example.com', 'password123', '123456789');
+GO
+
+INSERT INTO [user] (name, email, password, accountNumber) VALUES ('Jane Smith', 'jane.smith@example.com', 'password456', '987654321');
+GO
+
+SELECT * FROM [user];
+GO
+
+INSERT INTO balance (userId, amount, created_at, updated_at) VALUES ('9353118A-0946-4C0C-A15D-123675BCE131', 1500.00, GETDATE(), GETDATE());
+GO
+
+INSERT INTO balance (userId, amount, created_at, updated_at) VALUES ('FC32ED35-13F1-4567-A5D3-49218EF6318C', 2000.00, GETDATE(), GETDATE());
+GO
+
+
+SELECT id, name FROM [user];
+GO
+
+EXEC make_transaction @payerId = '9353118A-0946-4C0C-A15D-123675BCE131', @payeeId = 'FC32ED35-13F1-4567-A5D3-49218EF6318C', @amount = 500.00;
+GO
+
+SELECT TOP 1 amount FROM balance JOIN [user] ON balance.userId = [user].id WHERE [user].accountNumber = '123456789' ORDER BY balance.created_at DESC;
+GO
+
+SELECT TOP 1 amount FROM balance JOIN [user] ON balance.userId = [user].id WHERE [user].accountNumber = '987654321' ORDER BY balance.created_at DESC;
+GO
+
+DBCC USEROPTIONS;
+GO
+
+SET LOCK_TIMEOUT 30000;
+GO
+
+
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+GO
+# OU
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+GO
+# OU
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+GO
+
+
+
+
+# T1
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+UPDATE [user] SET name = 'John Doe Jr.' WHERE accountNumber = '123456789';
+GO
+SELECT * FROM [user];
+GO
+COMMIT TRANSACTION;
+GO
+
+# T2
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+SELECT * FROM [user];
+GO
+COMMIT TRANSACTION;
+GO
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+BEGIN TRANSACTION;
+SELECT * FROM [user];
+GO
+COMMIT TRANSACTION;
+GO
+
+
